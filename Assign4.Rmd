@@ -1,0 +1,57 @@
+---
+title: "Assign5"
+author: "Eunhee Lee, Arun Bird"
+date: "May 23, 2017"
+output: html_document
+---
+
+### A function to calculate maximum amounts of fish by location, revenues by each fish, and total revenues. 
+```{r eval=TRUE, echo=TRUE, warning=FALSE}
+fishfunction = function(price.table, number.fish.location, plotYN="no") {
+  maxcount = apply(number.fish.location,2,max,na.rm = TRUE)
+  maxfishtable = matrix(ncol=ncol(number.fish.location))
+for (k in 1:ncol(number.fish.location)){
+   rownum = as.numeric(which.max(number.fish.location[,k]))
+   maxfishtable[,k]=rownames(number.fish.location)[rownum]
+   colnames(maxfishtable)=colnames(number.fish.location)
+}
+  fishrevtable = matrix(nrow=nrow(number.fish.location), ncol=ncol(number.fish.location))
+  for (i in 1:nrow(number.fish.location)){
+    for (j in 1:ncol(number.fish.location)){
+      rownumber <- as.numeric(match(rownames(number.fish.location)[i],price.table[,1]))
+      fishrevtable[i,j] = as.numeric(price.table[rownumber,2])*number.fish.location[i,j]}
+  }
+  colnames(fishrevtable)=colnames(number.fish.location)
+  fishrev=apply(fishrevtable,2,FUN="sum")
+  totalrev = sum(fishrev)
+  fishrevtotal = fishrev 
+  fishrevtotal$total = totalrev
+  fishrevtotal = as.matrix(t(fishrevtotal))
+  if(plotYN=="yes") {fishplot = barplot(fishrevtotal, main="Revenues by each location", col=c("green"))}
+  return(list(Maxcount = maxcount, Maxfish = maxfishtable, Revenues = fishrev, Totalrevenue=totalrev))
+}
+
+```
+
+### Example input - fish price table 
+```{r eval=TRUE, echo=TRUE, warning=FALSE}
+fish.price.table = matrix(c("fish1","fish2","fish3",1,2,3),nrow=3,ncol=2)
+colnames(fish.price.table)=c("type","price")
+```
+
+### Example input - the amounts of fish by eash population 
+```{r eval=TRUE, echo=TRUE, warning=FALSE}
+fish.location = matrix(c(10,2,3,4,50,6,7,8,90),nrow=3,ncol=3)
+colnames(fish.location)=c("loc1","loc2","loc3")
+rownames(fish.location)=c("fish1","fish2","fish3")
+```
+
+### The result with the example inputs without a plot
+```{r eval=TRUE, echo=TRUE, warning=FALSE}
+fishfunction(fish.price.table, fish.location)
+```
+
+### The result with the example inputs with a plot
+```{r eval=TRUE, echo=TRUE, warning=FALSE}
+fishfunction(fish.price.table, fish.location, plotYN = "yes")
+```
